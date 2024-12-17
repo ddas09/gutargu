@@ -1,5 +1,7 @@
 using System.Reflection;
 using Gutargu.Backend.DAL;
+using Microsoft.AspNetCore.Mvc;
+using Gutargu.Backend.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using Gutargu.Backend.DAL.Extensions;
 using Gutargu.Backend.API.Extensions;
@@ -7,12 +9,17 @@ using Gutargu.Backend.Services.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// This is to configure custom ModelState validation filter
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -34,6 +41,11 @@ builder.Services.AddDbContext<GutarguDBContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("GutarguDB"));
 });
+
+builder.Services.Configure<ImageServiceConfiguration>
+    (
+        builder.Configuration.GetSection(nameof(ImageServiceConfiguration))
+    );
 
 // For registering action filters
 builder.Services.RegisterActionFilters();
@@ -74,5 +86,8 @@ app.ConfigureMiddlewares();
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+// Enable CORS
+app.UseCors();
 
 app.Run();
