@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace gutargu_backend.DAL.Migrations
 {
     [DbContext(typeof(GutarguDBContext))]
-    [Migration("20241217141701_initial-migration")]
+    [Migration("20241217180402_initial-migration")]
     partial class initialmigration
     {
         /// <inheritdoc />
@@ -46,8 +46,16 @@ namespace gutargu_backend.DAL.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileImageUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("UpdatedBy")

@@ -27,3 +27,6 @@ dist-ssr
 # backend
 bin
 obj
+
+# Local Image storage (file)
+gutargu-backend/uploads

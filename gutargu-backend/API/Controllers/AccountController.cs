@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Gutargu.Backend.API.Models;
 using Gutargu.Backend.API.ActionFilters;
 using Gutargu.Backend.Services.Contracts;
+using Gutargu.Backend.Common.Models;
 
 namespace Gutargu.Backend.Controllers;
 
@@ -21,9 +22,11 @@ public class AccountController(IAccountService accountService) : ControllerBase
     /// Registers a new user account.
     /// </summary>
     /// <param name="signupRequest">The signup request containing user details.</param>
+    /// <param name="profileImage">The profile image of the user.</param>
     [HttpPost("[action]")]
-    public async Task<IActionResult> Signup()
+    public async Task<IActionResult> Signup([FromForm] SignupRequestModel signupRequest, IFormFile? profileImage)
     {
-        return _customResponse.Success("Success");
+        await this._accountService.Signup(signupRequest, profileImage);
+        return _customResponse.Success("Account created successfully.");
     }
 }

@@ -4,11 +4,11 @@ import Chat from './components/chat/Chat';
 import Detail from './components/detail/Detail';
 import List from './components/list/List';
 import Login from './components/login/Login';
-import Register from './components/Register/Register';
+import Register from './components/register/Register';
 import Notification from './components/notification/Notification';
 
 const App = () => {
-  const user = true;
+  const user = false;
 
   return (
     <Router>
