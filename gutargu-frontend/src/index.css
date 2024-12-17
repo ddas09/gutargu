@@ -24,4 +24,24 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.125);
     display: flex;
 }
-  
+
+/* Global Scrollbar Styles */
+/* For Chrome, Safari, and Edge */
+* {
+    scrollbar-width: thin; /* Firefox: makes scrollbar thin */
+    scrollbar-color: #111 transparent; /* Firefox: thumb and track color */
+}
+
+*::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    height: 8px; /* Height for horizontal scrollbars */
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #111; /* Scrollbar thumb color */
+    border-radius: 4px; /* Rounded edges for the thumb */
+}
+
+*::-webkit-scrollbar-track {
+    background-color: transparent; /* Transparent track */
+}
