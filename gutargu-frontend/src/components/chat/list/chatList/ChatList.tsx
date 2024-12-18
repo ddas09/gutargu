@@ -4,10 +4,10 @@ import AddUser from './addUser/AddUser';
 
 const ChatList = () => {
 
-  const [addMode, setAddMode] = useState(false)
+  const [addMode, toggleAddMode] = useState(false)
 
   const changeAddMode = () => {
-    setAddMode((prev) => !prev);
+    toggleAddMode((prev) => !prev);
   }
 
   return (
@@ -45,7 +45,7 @@ const ChatList = () => {
           </div>
         </div>
 
-        {addMode && <AddUser />}
+        {addMode && <AddUser toggleAddMode={changeAddMode}/>}
     </div>
   )
 };

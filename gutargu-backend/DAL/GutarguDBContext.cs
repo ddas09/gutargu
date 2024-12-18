@@ -9,11 +9,15 @@ public class GutarguDBContext : DbContext
     public GutarguDBContext(DbContextOptions<GutarguDBContext> options) : base(options) { }
 
     public DbSet<User> Users { get; set; }
+
+    public DbSet<UserContact> UserContacts { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+
+        modelBuilder.ApplyConfiguration(new UserContactConfiguration());
     }
 }
