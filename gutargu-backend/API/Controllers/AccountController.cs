@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Gutargu.Backend.API.Models;
 using Gutargu.Backend.API.ActionFilters;
 using Gutargu.Backend.Services.Contracts;
-using Gutargu.Backend.Common.Models;
+using Gutargu.Backend.Common.Models.Request;
 
 namespace Gutargu.Backend.Controllers;
 
@@ -27,6 +27,17 @@ public class AccountController(IAccountService accountService) : ControllerBase
     public async Task<IActionResult> Signup([FromForm] SignupRequestModel signupRequest, IFormFile? profileImage)
     {
         await this._accountService.Signup(signupRequest, profileImage);
-        return _customResponse.Success("Account created successfully.");
+        return _customResponse.Success(message: "Account created successfully.");
+    }
+
+    /// <summary>
+    /// Authenticates a user and returns user informations.
+    /// </summary>
+    /// <param name="signinRequest">The request containing user credentials.</param>
+    [HttpPost("[action]")]
+    public async Task<IActionResult> Signin(SigninRequestModel signinRequest)
+    {
+        var user = await _accountService.Signin(signinRequest);
+        return _customResponse.Success(message: "User logged in successfully", data: user);   
     }
 }

@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Gutargu.Backend.Common.Models;
-using Microsoft.AspNetCore.StaticFiles;
 using Gutargu.Backend.Common.Constants;
 using Gutargu.Backend.Common.Exceptions;
 using Gutargu.Backend.Services.Contracts;
@@ -23,8 +21,7 @@ namespace Gutargu.Backend.Services
             }
         }
 
-        // Asynchronous method to retrieve the image file as a stream
-        public async Task<FileStreamResult> GetImageAsync(string imageFilePath)
+        public async Task<string> GetImageURL(string imageFilePath)
         {
             var filePath = Path.Combine(_uploadDirectory, imageFilePath);
 
@@ -33,17 +30,7 @@ namespace Gutargu.Backend.Services
                 throw new ApiException(message: "Image file not found.", errorCode: AppConstants.ErrorCodeEnum.NotFound);
             }
 
-            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            var fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
-
-            var provider = new FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(fileExtension, out string contentType))
-            {
-                contentType = "application/octet-stream";
-            }
-
-            // Return the image file as a stream with the correct MIME type asynchronously
-            return new FileStreamResult(fileStream, contentType);
+            return Path.Combine("http://localhost:5158/uploads/images/", imageFilePath);;
         }
 
         // Asynchronous method to upload an image

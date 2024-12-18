@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Gutargu.Backend.Common.Models;
+namespace Gutargu.Backend.Common.Models.Request;
 
 public class SignupRequestModel
 {

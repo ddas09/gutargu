@@ -1,10 +1,11 @@
 using AutoMapper;
 using Gutargu.Backend.DAL.Entities;
-using Gutargu.Backend.Common.Models;
 using Gutargu.Backend.DAL.Contracts;
 using Gutargu.Backend.Common.Constants;
 using Gutargu.Backend.Common.Exceptions;
 using Gutargu.Backend.Services.Contracts;
+using Gutargu.Backend.Common.Models.Request;
+using Gutargu.Backend.Common.Models.Response;
 
 namespace Gutargu.Backend.Services;
 
@@ -21,6 +22,29 @@ public class AccountService : IAccountService
         _imageService = imageService;
         _userRepository = userRepository;
         _cryptographyService = cryptographyService;
+    }
+
+    public async Task<UserResponseModel> Signin(SigninRequestModel signinRequest)
+    {
+        var user = await this._userRepository.Get(u => u.Email == signinRequest.Email)
+            ?? throw new ApiException(message: "User account with this email does not exist.", errorCode: AppConstants.ErrorCodeEnum.NotFound);
+
+        bool isValidPassword = this._cryptographyService.Verify(signinRequest.Password, user.PasswordHash);
+        if (!isValidPassword)
+        {
+            throw new ApiException(message: "Incorrect email or password provided.", errorCode: AppConstants.ErrorCodeEnum.Unauthorized);
+        }
+
+        var userInfo = this._mapper.Map<UserInformation>(user);
+        if (user.ProfileImageUrl != null) 
+        {
+            userInfo.ProfileImageUrl = await this._imageService.GetImageURL(imageFilePath: user.ProfileImageUrl);
+        }
+        
+        return new UserResponseModel
+        {
+            UserInfo = userInfo
+        };
     }
 
     public async Task Signup(SignupRequestModel signupRequest, IFormFile? profileImage)
