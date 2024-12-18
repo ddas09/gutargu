@@ -1,34 +1,21 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Auth from './components/auth/Auth';
 import Chat from './components/chat/Chat';
-import Detail from './components/detail/Detail';
-import List from './components/list/List';
-import Login from './components/login/Login';
-import Register from './components/register/Register';
 import Notification from './components/notification/Notification';
+import useAuthStore from './stores/AuthStore';
 
 const App = () => {
-  const user = false;
+
+  const { currentUser } = useAuthStore();
 
   return (
-    <Router>
-      <div className="container">
-          {user ? (
-            <>
-              <List></List>
-              <Chat></Chat>
-              <Detail></Detail>
-            </>
-          ) : (
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="*" element={<Navigate to="/login" />} />
-            </Routes>
-          )}
-        <Notification />
-      </div>
-    </Router>
+    <div className="container">
+      {
+        currentUser == null ? <Auth /> : <Chat />
+      }
+    
+      <Notification />
+    </div>
   );
 };
 

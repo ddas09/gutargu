@@ -6,7 +6,7 @@ public interface IImageService
 {
     Task<string> UploadImageAsync(IFormFile imageFile);
 
-    Task<FileStreamResult> GetImageAsync(string imageFilePath);
+    Task<string> GetImageURL(string imageFilePath);
 
     bool IsValidProfileImageType(IFormFile? imageFile);
 }

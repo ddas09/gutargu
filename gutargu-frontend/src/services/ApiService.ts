@@ -15,9 +15,19 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    const backendError = error.response?.data?.message || error.message || 'Something went wrong.';
-    toast.error(backendError);
-    return Promise.reject(new Error(backendError));
+    const status = error?.response?.data?.status || 'bad_request';
+    const message = error?.response?.data?.message || error.message || 'Something went wrong.';
+
+    toast.error(message);
+
+    // fallback to retrun a common response format
+    return Promise.resolve({
+      data: {
+        data: null,
+        status: status,
+        message: message,
+      }
+    });
   }
 );
 

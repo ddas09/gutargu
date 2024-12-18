@@ -1,6 +1,14 @@
+import { toast } from 'react-toastify';
+import useAuthStore from '../../../stores/AuthStore';
 import './Detail.css'
 
 const Detail = () => {
+
+  const { logout } = useAuthStore();
+  const handleLogout = () => {
+    toast.success("Logged out successfully.");
+    logout();
+  }
 
   return (
     <div className="detail">
@@ -59,7 +67,7 @@ const Detail = () => {
             </div>  
           </div>
           <button>Block User</button>
-          <button className='logout'>Logout</button>
+          <button className='logout' onClick={handleLogout}>Logout</button>
         </div>
     </div>
   );

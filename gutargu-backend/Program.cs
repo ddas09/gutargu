@@ -5,6 +5,7 @@ using Gutargu.Backend.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using Gutargu.Backend.DAL.Extensions;
 using Gutargu.Backend.API.Extensions;
+using Microsoft.Extensions.FileProviders;
 using Gutargu.Backend.Services.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +72,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Serve static files from the "uploads" directory
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
