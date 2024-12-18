@@ -88,4 +88,30 @@ public class UserService : IUserService
 
         await this._userContactRepository.AddRange(contacts);
     }
+
+    public async Task<UserContactResponseModel> GetContacts(int currentUserId)
+    {
+        var userContacts = await this._userContactRepository
+            .GetList
+            (
+                predicate: uc => uc.UserId == currentUserId,
+                includes: [
+                    nameof(UserContact.ContactUser)
+                ]
+            );
+
+        var contacts = this._mapper.Map<List<ContactInformation>>(userContacts);
+        foreach (var contact in contacts)
+        {
+            if (contact.ProfileImageUrl != null)
+            {
+                contact.ProfileImageUrl = await this._imageService.GetImageURL(contact.ProfileImageUrl);
+            }
+        }
+
+        return new UserContactResponseModel
+        {
+            Contacts = contacts
+        };
+    }
 }

@@ -40,4 +40,15 @@ public class UserController(IUserService userService) : ControllerBase
         await this._userService.AddContact(contactRequest);
         return _customResponse.Success("User added successfully.");
     }
+
+    /// <summary>
+    /// Retuens all the contacts for the current user.
+    /// </summary>
+    /// /// <param name="userId">The current user id who is making the request.</param>
+    [HttpGet("contacts")]
+    public async Task<IActionResult> GetContacts(int userId)
+    {
+        var contactResponse = await this._userService.GetContacts(userId);
+        return _customResponse.Success(data: contactResponse);
+    }
 }

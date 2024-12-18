@@ -5,6 +5,7 @@ import './Detail.css'
 const Detail = () => {
 
   const { logout } = useAuthStore();
+  
   const handleLogout = () => {
     toast.success("Logged out successfully.");
     logout();
