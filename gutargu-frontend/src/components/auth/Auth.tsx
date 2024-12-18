@@ -21,8 +21,8 @@ const Auth = () => {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email')?.toString() || '';
-    const password = formData.get('password')?.toString() || '';
+    const email = formData.get('email')?.toString().trim() || '';
+    const password = formData.get('password')?.toString().trim() || '';
 
     if (!email || !password) {
       toast.error('Please fill in all the fields.');
@@ -31,10 +31,9 @@ const Auth = () => {
     }
 
     try {
-      const { data, status, message } = await apiService.post<UserResponseModel>('accounts/signin', formData);
+      const { data, status } = await apiService.post<UserResponseModel>('accounts/signin', formData);
 
       if (status === 'success') {
-        toast.success(message);
         login(data?.userInfo as UserInformation);
       }
     } finally {
@@ -60,10 +59,10 @@ const Auth = () => {
       formData.append('profileImage', avatar.file);
     }
 
-    const name = formData.get('name')?.toString() || '';
-    const email = formData.get('email')?.toString() || '';
-    const password = formData.get('password')?.toString() || '';
-    const confirmPassword = formData.get('confirmPassword')?.toString() || '';
+    const name = formData.get('name')?.toString().trim() || '';
+    const email = formData.get('email')?.toString().trim() || '';
+    const password = formData.get('password')?.toString().trim() || '';
+    const confirmPassword = formData.get('confirmPassword')?.toString().trim() || '';
 
     if (!name || !email || !password || !confirmPassword) {
       toast.error('Please fill in all the fields.');

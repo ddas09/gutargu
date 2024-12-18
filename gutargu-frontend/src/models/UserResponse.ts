@@ -8,3 +8,8 @@ export interface UserInformation {
 export interface UserResponseModel {
     userInfo: UserInformation;
 }
+
+export interface UserSearchResponseModel
+{
+    users: UserInformation[]
+}

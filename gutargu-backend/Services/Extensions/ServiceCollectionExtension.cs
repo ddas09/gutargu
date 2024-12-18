@@ -9,5 +9,6 @@ public static class ServiceCollection
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<ICryptographyService, CryptographyService>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IUserService, UserService>();
     }
 }
