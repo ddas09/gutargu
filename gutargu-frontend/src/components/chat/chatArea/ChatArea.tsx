@@ -27,72 +27,72 @@ const ChatArea = () => {
 
   return (
     <div className="chat">
-        <div className="top">
-          <div className="user">
-            <img src="./avatar.png" alt="" />
-            <div className="texts">
-              <span>Batul</span>
-              <p>This is a sample chat</p>
-            </div>
-          </div>
-          <div className="icons">
-            <img src="./phone.png" alt="" />
-            <img src="./video.png" alt="" />
-            <img src="./info.png" alt="" />
+      <div className="top">
+        <div className="user">
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <span>Batul</span>
+            <p>This is a sample chat</p>
           </div>
         </div>
+        <div className="icons">
+          <img src="./phone.png" alt="" />
+          <img src="./video.png" alt="" />
+          <img src="./info.png" alt="" />
+        </div>
+      </div>
 
-        <div className="center">
-          <div className="message">
-            <img src="./avatar.png" alt="" />
-            <div className="texts">
-              <p>This is a sample message by me</p>
-              <span>1 min ago</span>
-            </div>
+      <div className="center">
+        <div className="message">
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <p>This is a sample message by me</p>
+            <span>1 min ago</span>
           </div>
-          <div className="message own">
-            <img src="./avatar.png" alt="" />
-            <div className="texts">
-              <p>This is a sample message by me</p>
-              <span>1 min ago</span>
-            </div>
+        </div>
+        <div className="message own">
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <p>This is a sample message by me</p>
+            <span>1 min ago</span>
           </div>
-          <div className="message">
-            <img src="./avatar.png" alt="" />
-            <div className="texts">
-              <p>This is a sample message by me</p>
-              <span>1 min ago</span>
-            </div>
+        </div>
+        <div className="message">
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <p>This is a sample message by me</p>
+            <span>1 min ago</span>
           </div>
-          <div className="message own">
-            <img src="./avatar.png" alt="" />
-            <div className="texts">
-              <img src="https://cdn.pixabay.com/photo/2024/05/27/12/27/gargoyle-8791108_1280.jpg" alt="" />
-              <p>This is a sample message by me long size</p>
-              <span>1 min ago</span>
-            </div>
+        </div>
+        <div className="message own">
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <img src="https://cdn.pixabay.com/photo/2024/05/27/12/27/gargoyle-8791108_1280.jpg" alt="" />
+            <p>This is a sample message by me long size</p>
+            <span>1 min ago</span>
           </div>
-          <div ref={endRef}></div>
+        </div>
+        <div ref={endRef}></div>
+      </div>
+
+      <div className="bottom">
+        <div className="icons">
+          <img src="./img.png" alt="" />
+          <img src="./camera.png" alt="" />
+          <img src="./mic.png" alt="" />
         </div>
 
-        <div className="bottom">
-          <div className="icons">
-            <img src="./img.png" alt="" />
-            <img src="./camera.png" alt="" />
-            <img src="./mic.png" alt="" />
-          </div>
+        <input type="text" value={text} placeholder='Type a message...' onChange={e => handleMessageChange(e?.target.value)} />
 
-          <input type="text" value={text} placeholder='Type a message...' onChange={e => handleMessageChange(e?.target.value)} />
-
-          <div className="emoji">
-            <img src="./emoji.png" alt="" onClick={openEmojiPicker} />
-            <div className="picker">
-              <EmojiPicker open={open} onEmojiClick={handleEmoji}></EmojiPicker>
-            </div>
+        <div className="emoji">
+          <img src="./emoji.png" alt="" onClick={openEmojiPicker} />
+          <div className="picker">
+            <EmojiPicker open={open} onEmojiClick={handleEmoji}></EmojiPicker>
           </div>
-          
-          <button className="sendButton">Send</button>
         </div>
+        
+        <button className="sendButton">Send</button>
+      </div>
     </div>
   )
 };
