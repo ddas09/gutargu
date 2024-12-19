@@ -4,10 +4,11 @@ export interface UserContactInformation {
     userEmail: string;
     profileImageUrl?: string;
     lastChatId?: number;
-    lastChatSenderId?: number;
     lastChatMessage: string;
     isLastChatRead: boolean;
     isLastChatSentByContact: boolean;
+    isContactBlocked: boolean;
+    hasBlockedCurrentUser: boolean;
 }
 
 export interface UserContactsResponseModel {

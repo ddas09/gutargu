@@ -1,10 +1,9 @@
 import './ChatList.css'
 import AddUser from './addUser/AddUser';
 import { useEffect, useState } from 'react';
+import useChatStore from '../../../../stores/ChatStore';
 import useAuthStore from '../../../../stores/UserStore';
 import apiService from '../../../../services/ApiService';
-import useChatStore from '../../../../stores/ChatStore';
-import { UserInformation } from '../../../../models/UserResponse';
 import { UserContactInformation, UserContactsResponseModel } from '../../../../models/UserContactsResponse';
 
 const ChatList = () => {
@@ -16,13 +15,15 @@ const ChatList = () => {
 
   const [addMode, toggleAddMode] = useState(false)
 
+  const [filterText, setFilterText] = useState("")
+
   const changeAddMode = () => {
     toggleAddMode((prev) => !prev);
   }
 
   useEffect(() => {
     getUserContacts();
-  }, [currentUser?.id, chatUser?.id]);
+  }, [currentUser?.id, chatUser?.userId]);
 
   const getUserContacts = async () => {
     const queryParams = { 
@@ -37,15 +38,11 @@ const ChatList = () => {
   };
 
   const handleContactClick = async (contact: UserContactInformation) => {
-    const user: UserInformation = {
-      id: contact.userId,
-      name: contact.userName,
-      email: contact.userEmail,
-      profileImageUrl: contact.profileImageUrl
-    };
+    setChatUser(contact);
+    await setLastChatSeenStatus(contact);
+  }
 
-    setChatUser(user);
-
+  const setLastChatSeenStatus = async (contact: UserContactInformation) => {
     if (!contact.isLastChatSentByContact || contact.lastChatId == null || contact.isLastChatRead) return;
 
     const updateChatRequest = {
@@ -59,18 +56,23 @@ const ChatList = () => {
     }
   }
 
+  const filteredContacts = contacts.filter(
+    c => c.userName.toLocaleLowerCase().includes(filterText) 
+    || c.userEmail.toLocaleLowerCase().includes(filterText)
+  );
+
   return (
     <div className="chatList">
       <div className="search">
         <div className="searchBar">
           <img src="./search.png" alt="" />
-          <input type="text" placeholder='Search' />
+          <input type="text" placeholder='Search' onChange={(e) => setFilterText(e.target.value.toLocaleLowerCase())}/>
         </div>
 
         <img src={addMode ? "./minus.png" : "./plus.png"} onClick={changeAddMode} alt="" className='add' />
       </div>
       {
-        contacts.map((contact) => (
+        filteredContacts.map((contact) => (
           <div 
             className="item" 
             key={contact.userId} 
@@ -79,10 +81,16 @@ const ChatList = () => {
               backgroundColor: contact.isLastChatSentByContact && !contact.isLastChatRead ? "#5183fe" : "transparent"
             }}
           >
-            <img src={ contact.profileImageUrl || "./avatar.png"} alt="" />
+            <img src={ !contact.isContactBlocked && !contact.hasBlockedCurrentUser && contact.profileImageUrl || "./avatar.png"} alt="" />
             <div className="texts">
               <span>{contact.userName}</span>
-              <p>{contact.lastChatMessage}</p>
+              <p>
+                { !contact.isContactBlocked && !contact.hasBlockedCurrentUser ? contact.lastChatMessage
+                    : contact?.isContactBlocked 
+                      ? "You have blocked this contact."
+                        : "This user has blocked you."
+                }
+              </p>
             </div>
           </div>
         ))

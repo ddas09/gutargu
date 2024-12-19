@@ -10,4 +10,6 @@ public interface IUserService
     Task AddContact(AddContactRequestModel contactRequest);
 
     Task<UserContactResponseModel> GetContacts(int currentUserId);
+
+    Task UpdateBlockStatus(UpdateBlockStatusRequestModel blockRequest);
 }

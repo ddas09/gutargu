@@ -13,6 +13,8 @@ public class GutarguDBContext : DbContext
     public DbSet<Chat> Chats { get; set; }
 
     public DbSet<UserContact> UserContacts { get; set; }
+
+    public DbSet<UserBlocking> UserBlockings { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,5 +25,7 @@ public class GutarguDBContext : DbContext
         modelBuilder.ApplyConfiguration(new ChatConfiguration());
 
         modelBuilder.ApplyConfiguration(new UserContactConfiguration());
+
+        modelBuilder.ApplyConfiguration(new UserBlockingConfiguration());
     }
 }

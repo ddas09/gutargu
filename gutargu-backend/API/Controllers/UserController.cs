@@ -51,4 +51,15 @@ public class UserController(IUserService userService) : ControllerBase
         var contactResponse = await this._userService.GetContacts(userId);
         return _customResponse.Success(data: contactResponse);
     }
+
+    /// <summary>
+    /// Blocks/unblocks a user contact.
+    /// </summary>
+    /// /// <param name="blockRequest">The request containing the contact to block.</param>
+    [HttpPut("contacts/block")]
+    public async Task<IActionResult> BlockContact(UpdateBlockStatusRequestModel blockRequest)
+    {
+        await this._userService.UpdateBlockStatus(blockRequest);
+        return _customResponse.Success("Contact has been blocked successfully.");
+    }
 }

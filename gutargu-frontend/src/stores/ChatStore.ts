@@ -1,16 +1,23 @@
 import { create } from 'zustand';
-import { UserInformation } from '../models/UserResponse';
+import { UserContactInformation } from '../models/UserContactsResponse';
 
 interface ChatState {
-  chatUser: UserInformation | null;
+  chatUser: UserContactInformation | null;
+  
+  setChatUser: (chatUser: UserContactInformation) => void;
 
-  setChatUser: (chatUser: UserInformation) => void;
+  isBlocked: () => boolean;
 }
 
-const useChatStore = create<ChatState>((set) => ({
-    chatUser: null,
+const useChatStore = create<ChatState>((set, get) => ({
+  chatUser: null,
 
-    setChatUser: (chatUser) => set({ chatUser })
+  setChatUser: (chatUser) => set({ chatUser }),
+
+  isBlocked: () => {
+    const chatUser = get().chatUser;
+    return chatUser?.hasBlockedCurrentUser || chatUser?.isContactBlocked || false;
+  }
 }));
 
 export default useChatStore;

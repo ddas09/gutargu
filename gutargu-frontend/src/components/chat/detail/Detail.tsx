@@ -2,24 +2,53 @@ import './Detail.css'
 import { toast } from 'react-toastify';
 import useAuthStore from '../../../stores/UserStore';
 import useChatStore from '../../../stores/ChatStore';
+import apiService from '../../../services/ApiService';
 import StorageService from '../../../services/StorageService';
 
 const Detail = () => {
 
-  const { chatUser } = useChatStore();
-  const { clearUser } = useAuthStore();
+  const { isBlocked, chatUser } = useChatStore();
+  const { currentUser, clearUser } = useAuthStore();
   
   const handleLogout = () => {
     clearUser();
     StorageService.clearStorage();
     toast.success("Logged out successfully.");
   }
+  
+  const getBlockButtonText = () => {
+    if (chatUser?.isContactBlocked)
+      return "Unblock User"
+    else
+      return "Block User"
+  };
+
+  const isContactBlocked = chatUser?.isContactBlocked;
+
+  const handleBlockUnblock = async () => {
+    const updateBlockStatus = {
+      blockedUserId: chatUser?.userId,
+      blockingUserId: currentUser?.id,
+      blockingUserEmail: currentUser?.email,
+      shouldBlock: !isContactBlocked
+    };
+
+    const { status } = await apiService.put('users/contacts/block', updateBlockStatus);
+
+    if (status === 'success') {
+      if (isContactBlocked) {
+        toast.success("Contact has been unblocked.")
+      } else {
+        toast.info("Contact has been blocked.")
+      }
+    }
+  };
 
   return (
     <div className="detail">
         <div className="user">
-          <img src={ chatUser?.profileImageUrl || "./avatar.png" } alt="" />
-          <h2>{chatUser?.name}</h2>
+          <img src={ !isBlocked() && chatUser?.profileImageUrl || "./avatar.png" } alt="" />
+          <h2>{chatUser?.userName}</h2>
           <p>This is my status</p>
         </div>
 
@@ -71,7 +100,7 @@ const Detail = () => {
               <img src="./arrowUp.png" alt="" />
             </div>  
           </div>
-          <button>Block User</button>
+          <button onClick={handleBlockUnblock}>{getBlockButtonText()}</button>
           <button className='logout' onClick={handleLogout}>Logout</button>
         </div>
     </div>
