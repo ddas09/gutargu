@@ -12,10 +12,12 @@ const ChatArea = () => {
   const { currentUser } = useAuthStore();
 
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState("");
-  
-  const [chats, setChats] = useState([] as ChatInformation[]);
 
+  const [text, setText] = useState("");
+  const [image, setImage] = useState({ file: null as Blob | null, url: '' });
+
+  const [chats, setChats] = useState([] as ChatInformation[]);
+  
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -25,6 +27,15 @@ const ChatArea = () => {
   useEffect(() => {
     getChats();
   }, [chatUser?.id, currentUser?.id])
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setImage({
+        file: e.target.files[0],
+        url: URL.createObjectURL(e.target.files[0]),
+      });
+    }
+  };
 
   const getChats = async () => {
     if (!currentUser || !chatUser) return;
@@ -52,6 +63,35 @@ const ChatArea = () => {
 
   const handleMessageChange = (msg: string) => {
     setText(msg);
+  };
+
+  const handleSend = async () => {
+    if (!text || text == "") {
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("senderId", currentUser?.id?.toString() || "");
+    formData.append("receiverId", chatUser?.id?.toString() || "");
+    formData.append("message", text);
+    formData.append("senderEmail", currentUser?.email || "");
+
+    if (image.file) {
+      formData.append("chatImage", image.file);
+    }
+
+    const customHeaders = { 'Content-Type': 'multipart/form-data' };
+    const { status } = await apiService.post('chats', formData, customHeaders);
+
+    if (status === 'success') {
+      setImage({
+        file: null,
+        url: ""
+      });
+
+      setText("");
+    }
   };
 
   if (chatUser == null) {
@@ -98,13 +138,23 @@ const ChatArea = () => {
             ))
           )
         }
-        
+        {
+          image.url &&
+          <div className='message own'>
+            <div className="texts">
+              <img src={image.url} alt="" />
+            </div>
+          </div>
+        }
         <div ref={endRef}></div>
       </div>
 
       <div className="bottom">
         <div className="icons">
-          <img src="./img.png" alt="" />
+          <label htmlFor='img'>
+            <img src="./img.png" alt="" />
+          </label>
+          <input type="file" id='img' style={{ display: "none" }} onChange={handleImage} />
           <img src="./camera.png" alt="" />
           <img src="./mic.png" alt="" />
         </div>
@@ -118,7 +168,7 @@ const ChatArea = () => {
           </div>
         </div>
         
-        <button className="sendButton">Send</button>
+        <button className="sendButton" onClick={handleSend}>Send</button>
       </div>
     </div>
   )

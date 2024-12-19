@@ -1,10 +1,12 @@
 import './Detail.css'
 import { toast } from 'react-toastify';
 import useAuthStore from '../../../stores/UserStore';
+import useChatStore from '../../../stores/ChatStore';
 import StorageService from '../../../services/StorageService';
 
 const Detail = () => {
 
+  const { chatUser } = useChatStore();
   const { clearUser } = useAuthStore();
   
   const handleLogout = () => {
@@ -16,8 +18,8 @@ const Detail = () => {
   return (
     <div className="detail">
         <div className="user">
-          <img src="./avatar.png" alt="" />
-          <h2>Dip Das</h2>
+          <img src={ chatUser?.profileImageUrl || "./avatar.png" } alt="" />
+          <h2>{chatUser?.name}</h2>
           <p>This is my status</p>
         </div>
 

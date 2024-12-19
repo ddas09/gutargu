@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Gutargu.Backend.API.Models;
 using Gutargu.Backend.API.ActionFilters;
 using Gutargu.Backend.Services.Contracts;
+using Gutargu.Backend.Common.Models.Request;
 
 namespace Gutargu.Backend.Controllers;
 
@@ -27,5 +28,28 @@ public class ChatController(IChatService chatService) : ControllerBase
     {
         var chatResponse = await this._chatService.GetChats(senderId, recieverId);
         return _customResponse.Success(data: chatResponse);
+    }
+
+    /// <summary>
+    /// Stores a new chat in the database.
+    /// </summary>
+    /// <param name="chatRequest">The new chat that needs to be stored.</param>
+    /// <param name="chatImage">The image file associated with the chat.</param>
+    [HttpPost]
+    public async Task<IActionResult> AddChat([FromForm] AddChatRequestModel chatRequest, IFormFile? chatImage)
+    {
+        await this._chatService.AddChat(chatRequest, chatImage);
+        return _customResponse.Success(data: "");
+    }
+
+    /// <summary>
+    /// Updates the chat's seen status.
+    /// </summary>
+    /// <param name="request">The chat that needs to be updated.</param>
+    [HttpPut]
+    public async Task<IActionResult> UpdateChat(UpdateChatStatusRequestModel request)
+    {
+        await this._chatService.UpdateChatStatus(request);
+        return _customResponse.Success(data: "");
     }
 }
