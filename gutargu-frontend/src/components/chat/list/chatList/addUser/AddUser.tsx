@@ -1,9 +1,10 @@
 import './AddUser.css';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import useAuthStore from '../../../../../stores/AuthStore';
+import useAuthStore from '../../../../../stores/UserStore';
 import apiService from '../../../../../services/ApiService';
 import { UserInformation, UserSearchResponseModel } from '../../../../../models/UserResponse';
+import useChatStore from '../../../../../stores/ChatStore';
 
 interface AddUserProps {
   toggleAddMode: () => void;
@@ -12,6 +13,7 @@ interface AddUserProps {
 const AddUser = (props: AddUserProps) => {
   const { toggleAddMode } = props;
   const { currentUser } = useAuthStore();
+  const { setChatUser } = useChatStore();
 
   const [users, setUsers] = useState([] as UserInformation[]);
 
@@ -50,6 +52,7 @@ const AddUser = (props: AddUserProps) => {
     if (status === 'success') {
       toast.success("User added successfully");
       toggleAddMode();
+      setChatUser(contactUser);
     }
   };
 

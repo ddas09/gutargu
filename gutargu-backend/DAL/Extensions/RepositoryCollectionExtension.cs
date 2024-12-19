@@ -9,6 +9,8 @@ public static class RepositoryCollection
     {
         services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddScoped<IChatRepository, ChatRepository>();
+
         services.AddScoped<IUserContactRepository, UserContactRepository>();
     }
 }

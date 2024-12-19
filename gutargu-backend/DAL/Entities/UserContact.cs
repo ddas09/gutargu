@@ -7,4 +7,7 @@ public class UserContact : BaseEntity
 
     public int ContactUserId { get; set; }
     public User ContactUser { get; set; }
+
+    public int? LastChatId { get; set; }
+    public Chat LastChat { get; set; }
 }
