@@ -36,38 +36,58 @@ const ChatList = () => {
     }
   };
 
-  const handleContactClick = (contact: UserContactInformation) => {
+  const handleContactClick = async (contact: UserContactInformation) => {
     const user: UserInformation = {
       id: contact.userId,
       name: contact.userName,
+      email: contact.userEmail,
       profileImageUrl: contact.profileImageUrl
     };
 
     setChatUser(user);
+
+    if (!contact.isLastChatSentByContact || contact.lastChatId == null || contact.isLastChatRead) return;
+
+    const updateChatRequest = {
+      chatId: contact.lastChatId,
+      recieverEmail: currentUser?.email
+    };
+
+    const { status } = await apiService.put('chats', updateChatRequest);
+    if (status === 'success') {
+      contact.isLastChatRead = true;
+    }
   }
 
   return (
     <div className="chatList">
-        <div className="search">
-          <div className="searchBar">
-            <img src="./search.png" alt="" />
-            <input type="text" placeholder='Search' />
-          </div>
-
-          <img src={addMode ? "./minus.png" : "./plus.png"} onClick={changeAddMode} alt="" className='add' />
+      <div className="search">
+        <div className="searchBar">
+          <img src="./search.png" alt="" />
+          <input type="text" placeholder='Search' />
         </div>
-        {
-          contacts.map((contact) => (
-            <div className="item" key={contact.userId} onClick={() => handleContactClick(contact)}>
-              <img src={ contact.profileImageUrl || "./avatar.png"} alt="" />
-              <div className="texts">
-                <span>{contact.userName}</span>
-                <p></p>
-              </div>
+
+        <img src={addMode ? "./minus.png" : "./plus.png"} onClick={changeAddMode} alt="" className='add' />
+      </div>
+      {
+        contacts.map((contact) => (
+          <div 
+            className="item" 
+            key={contact.userId} 
+            onClick={() => handleContactClick(contact)}
+            style={{
+              backgroundColor: contact.isLastChatSentByContact && !contact.isLastChatRead ? "#5183fe" : "transparent"
+            }}
+          >
+            <img src={ contact.profileImageUrl || "./avatar.png"} alt="" />
+            <div className="texts">
+              <span>{contact.userName}</span>
+              <p>{contact.lastChatMessage}</p>
             </div>
-          ))
-        }
-        {addMode && <AddUser toggleAddMode={changeAddMode}/>}
+          </div>
+        ))
+      }
+      {addMode && <AddUser toggleAddMode={changeAddMode}/>}
     </div>
   )
 };

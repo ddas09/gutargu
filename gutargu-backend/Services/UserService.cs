@@ -96,7 +96,8 @@ public class UserService : IUserService
             (
                 predicate: uc => uc.UserId == currentUserId,
                 includes: [
-                    nameof(UserContact.ContactUser)
+                    nameof(UserContact.ContactUser),
+                    nameof(UserContact.LastChat)
                 ]
             );
 
@@ -107,6 +108,8 @@ public class UserService : IUserService
             {
                 contact.ProfileImageUrl = await this._imageService.GetImageURL(contact.ProfileImageUrl);
             }
+
+            contact.IsLastChatSentByContact = contact.LastChatSenderId == contact.UserId;
         }
 
         return new UserContactResponseModel
