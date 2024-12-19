@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 
 const ChatArea = () => {
 
-  const { isBlocked, chatUser } = useChatStore();
+  const { isBlocked, chatUser, toggleDetail, setSharedPhotos } = useChatStore();
   const { currentUser } = useAuthStore();
 
   const [open, setOpen] = useState(false);
@@ -50,6 +50,12 @@ const ChatArea = () => {
 
     if (status === 'success') {
       setChats(data?.chats as ChatInformation[]);
+
+      const sharedPhotosUrl = data?.chats
+        .filter((chat) => chat.imageUrl != undefined)
+        .map((chat) => chat.imageUrl as string);
+
+      setSharedPhotos(sharedPhotosUrl as string[]);
     }
   };
 
@@ -121,7 +127,7 @@ const ChatArea = () => {
         <div className="icons">
           <img src="./phone.png" alt="" />
           <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+          <img src="./info.png" alt="" onClick={toggleDetail}/>
         </div>
       </div>
 

@@ -5,13 +5,13 @@ import useChatStore from "../../stores/ChatStore";
 
 const Chat = () => {
 
-    const { chatUser } = useChatStore();
+    const { chatUser, isDetailOpen } = useChatStore();
 
     return (
         <>
             <List />
             <ChatArea />
-            { chatUser && <Detail />}
+            { chatUser && isDetailOpen && <Detail />}
         </>
     )
 };

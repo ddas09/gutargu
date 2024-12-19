@@ -4,14 +4,24 @@ import useAuthStore from '../../../stores/UserStore';
 import useChatStore from '../../../stores/ChatStore';
 import apiService from '../../../services/ApiService';
 import StorageService from '../../../services/StorageService';
+import { useState } from 'react';
 
 const Detail = () => {
 
-  const { isBlocked, chatUser } = useChatStore();
+  const { isBlocked, chatUser, sharedPhotos, clearChatStore  } = useChatStore();
+
   const { currentUser, clearUser } = useAuthStore();
-  
+
+  const [isSharePhotoSectionOpen, setIsSharePhotoSectionOpen] = useState(false);
+
+  const toggleSharePhotoSection = () => {
+    setIsSharePhotoSectionOpen((prevState) => !prevState);
+  };
+
+
   const handleLogout = () => {
     clearUser();
+    clearChatStore();
     StorageService.clearStorage();
     toast.success("Logged out successfully.");
   }
@@ -54,51 +64,28 @@ const Detail = () => {
 
         <div className="info">
           <div className="option">
-            <div className="title">
-              <span>Chat Settings</span>
-              <img src="./arrowUp.png" alt="" />
-            </div>
-          </div>
-          <div className="option">
-            <div className="title">
-              <span>Privacy & Help</span>
-              <img src="./arrowUp.png" alt="" />
-            </div>  
-          </div>
-          <div className="option">
-            <div className="title">
+            <div className="title" onClick={toggleSharePhotoSection}>
               <span>Shared Photos</span>
-              <img src="./arrowDown.png" alt="" />
+                <img 
+                  src={isSharePhotoSectionOpen ? "./arrowUp.png" : "./arrowDown.png"} 
+                  alt={isSharePhotoSectionOpen ? "Collapse" : "Expand"} 
+                />
             </div>
-            <div className="photos">
-              <div className="photoItem">
-                <div className="photoDetail">
-                  <img src="https://cdn.pixabay.com/photo/2023/01/08/14/22/sample-7705346_640.jpg" alt="" />
-                  <span>My photo</span>
-                </div>
-                <img src="./download.png" className='icon' alt="" />
+            {isSharePhotoSectionOpen && (
+              <div className="photos">
+                {sharedPhotos.map((photoUrl, index) => (
+                  <div className="photoItem" key={index}>
+                    <div className="photoDetail">
+                      <img src={photoUrl} alt="Shared Photo" />
+                      <span>My photo</span>
+                    </div>
+                    <a href={photoUrl} download={`photo-${index + 1}.jpg`}>
+                      <img src="./download.png" className="icon" alt="Download Icon" />
+                    </a>
+                  </div>
+                ))}
               </div>
-              <div className="photoItem">
-                <div className="photoDetail">
-                  <img src="https://cdn.pixabay.com/photo/2023/01/08/14/22/sample-7705346_640.jpg" alt="" />
-                  <span>My photo</span>
-                </div>
-                <img src="./download.png" className='icon' alt="" />
-              </div>
-              <div className="photoItem">
-                <div className="photoDetail">
-                  <img src="https://cdn.pixabay.com/photo/2023/01/08/14/22/sample-7705346_640.jpg" alt="" />
-                  <span>My photo</span>
-                </div>
-                <img src="./download.png" className='icon' alt="" />
-              </div>
-            </div>
-          </div>
-          <div className="option">
-            <div className="title">
-              <span>Shared Files</span>
-              <img src="./arrowUp.png" alt="" />
-            </div>  
+            )}
           </div>
           <button onClick={handleBlockUnblock}>{getBlockButtonText()}</button>
           <button className='logout' onClick={handleLogout}>Logout</button>
