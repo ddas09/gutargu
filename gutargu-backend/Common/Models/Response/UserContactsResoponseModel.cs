@@ -24,4 +24,8 @@ public class ContactInformation
     public int? LastChatSenderId { get; set; }
 
     public bool IsLastChatSentByContact { get; set; } = true;
+
+    public bool IsContactBlocked { get; set; }
+
+    public bool HasBlockedCurrentUser { get; set; }
 }

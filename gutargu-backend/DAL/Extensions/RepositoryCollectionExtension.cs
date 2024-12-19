@@ -12,6 +12,8 @@ public static class RepositoryCollection
         services.AddScoped<IChatRepository, ChatRepository>();
 
         services.AddScoped<IUserContactRepository, UserContactRepository>();
+
+        services.AddScoped<IUserBlockingRepository, UserBlockingRepository>();
     }
 }
 

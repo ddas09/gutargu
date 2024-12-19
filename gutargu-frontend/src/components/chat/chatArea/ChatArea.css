@@ -50,8 +50,6 @@
                     font-weight: 300;
                     color: #a5a5a5;
                 }
-
-
             }
         }
 
@@ -116,6 +114,7 @@
                     height: 300px;
                     border-radius: 10px;
                     object-fit: cover;
+                    position: relative;
                 }
 
                 p {
@@ -124,6 +123,10 @@
                     border-radius: 10px;
                 }
             }
+        }
+
+        .message.own .texts img {
+            margin-right: 10px;
         }
     }
 
@@ -176,5 +179,33 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .blocked-info {
+            margin: 0 auto;
+        }
     }
+
+    /* Style for the cancel button */
+    .message.own .texts {
+        position: relative;
+    }
+
+    .cancel-button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(17, 25, 40, 0.3);
+        color: white;
+        border: 1px solid white;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1;
+        font-size: 16px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }    
 }

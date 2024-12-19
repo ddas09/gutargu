@@ -15,13 +15,22 @@ public class UserService : IUserService
     private readonly IImageService _imageService;
     private readonly IUserRepository _userRepository;
     private readonly IUserContactRepository _userContactRepository;
+    private readonly IUserBlockingRepository _userBlockingRepository;
 
-    public UserService(IMapper mapper, IImageService imageService, IUserRepository userRepository, IUserContactRepository userContactRepository)
+    public UserService
+    (
+        IMapper mapper, 
+        IImageService imageService, 
+        IUserRepository userRepository, 
+        IUserContactRepository userContactRepository,
+        IUserBlockingRepository userBlockingRepository
+    )
     {
         _mapper = mapper;
         _imageService = imageService;
         _userRepository = userRepository;
         _userContactRepository = userContactRepository;
+        _userBlockingRepository = userBlockingRepository;
     }
 
     public async Task<UserSearchResponseModel> Search(int currentUserId, string searchKey)
@@ -101,6 +110,12 @@ public class UserService : IUserService
                 ]
             );
 
+        var userBlockings = await this._userBlockingRepository
+            .GetList
+            (
+                predicate: ub => ub.BlockedUserId == currentUserId || ub.BlockingUserId == currentUserId
+            );
+
         var contacts = this._mapper.Map<List<ContactInformation>>(userContacts);
         foreach (var contact in contacts)
         {
@@ -109,6 +124,12 @@ public class UserService : IUserService
                 contact.ProfileImageUrl = await this._imageService.GetImageURL(contact.ProfileImageUrl);
             }
 
+            contact.IsContactBlocked = userBlockings
+                .Any(ub => ub.BlockedUserId == contact.UserId && ub.BlockingUserId == currentUserId);
+            
+            contact.HasBlockedCurrentUser = userBlockings
+                .Any(ub => ub.BlockedUserId == currentUserId && ub.BlockingUserId == contact.UserId);
+
             contact.IsLastChatSentByContact = contact.LastChatSenderId == contact.UserId;
         }
 
@@ -116,5 +137,31 @@ public class UserService : IUserService
         {
             Contacts = contacts
         };
+    }
+
+    public async Task UpdateBlockStatus(UpdateBlockStatusRequestModel blockRequest)
+    {
+        var userBlocking = await this._userBlockingRepository
+            .Get(ub => ub.BlockedUserId == blockRequest.BlockedUserId && ub.BlockingUserId == blockRequest.BlockingUserId);
+
+        if (blockRequest.ShouldBlock)
+        {
+            if (userBlocking != null)
+            {
+                throw new ApiException("Contact already blocked.", AppConstants.ErrorCodeEnum.Conflict);
+            }
+
+            var newUserBlocking = this._mapper.Map<UserBlocking>(blockRequest);
+            await this._userBlockingRepository.Add(newUserBlocking);
+        }
+        else
+        {
+            if (userBlocking == null)
+            {
+                throw new ApiException("Contact is not blocked.", AppConstants.ErrorCodeEnum.Conflict);
+            }
+
+            await this._userBlockingRepository.Delete(userBlocking);
+        }
     }
 }

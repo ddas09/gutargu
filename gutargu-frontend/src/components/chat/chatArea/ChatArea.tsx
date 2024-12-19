@@ -5,10 +5,11 @@ import useAuthStore from '../../../stores/UserStore';
 import useChatStore from '../../../stores/ChatStore';
 import apiService from '../../../services/ApiService';
 import { ChatInformation, ChatResponseModel } from '../../../models/ChatResponse';
+import { toast } from 'react-toastify';
 
 const ChatArea = () => {
 
-  const { chatUser } = useChatStore();
+  const { isBlocked, chatUser } = useChatStore();
   const { currentUser } = useAuthStore();
 
   const [open, setOpen] = useState(false);
@@ -18,7 +19,7 @@ const ChatArea = () => {
 
   const [chats, setChats] = useState([] as ChatInformation[]);
   
-  const endRef = useRef(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,7 +27,7 @@ const ChatArea = () => {
 
   useEffect(() => {
     getChats();
-  }, [chatUser?.id, currentUser?.id])
+  }, [chatUser?.userId, currentUser?.id])
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -42,7 +43,7 @@ const ChatArea = () => {
 
     const queryParams = { 
       'senderId': currentUser?.id,
-      'recieverId': chatUser?.id,
+      'recieverId': chatUser?.userId,
     };
 
     const { data, status } = await apiService.get<ChatResponseModel>('chats', queryParams);
@@ -67,14 +68,15 @@ const ChatArea = () => {
 
   const handleSend = async () => {
     if (!text || text == "") {
+      toast.info("Please enter some message.");
       return;
     }
 
     const formData = new FormData();
 
     formData.append("senderId", currentUser?.id?.toString() || "");
-    formData.append("receiverId", chatUser?.id?.toString() || "");
-    formData.append("message", text);
+    formData.append("receiverId", chatUser?.userId?.toString() || "");
+    formData.append("message", text.trim() || "");
     formData.append("senderEmail", currentUser?.email || "");
 
     if (image.file) {
@@ -94,6 +96,10 @@ const ChatArea = () => {
     }
   };
 
+  const handleCancelImage = () => {
+    setImage({ file: null, url: "" });
+  };
+
   if (chatUser == null) {
     return (
       <div className="chat center">
@@ -106,9 +112,9 @@ const ChatArea = () => {
     <div className="chat">
       <div className="top">
         <div className="user">
-          <img src={ chatUser?.profileImageUrl || "./avatar.png" } alt="" />
+          <img src={ !isBlocked() && chatUser?.profileImageUrl || "./avatar.png" } alt="" />
           <div className="texts">
-            <span>{chatUser?.name}</span>
+            <span>{chatUser?.userName}</span>
             <p>This is a sample chat</p>
           </div>
         </div>
@@ -121,7 +127,7 @@ const ChatArea = () => {
 
       <div className="center">
         {
-          chats.length === 0 ? (
+          !isBlocked && chats.length === 0 ? (
             <div className="noMessages">
               <p>Type some messages to start the conversation...</p>
             </div>
@@ -143,6 +149,7 @@ const ChatArea = () => {
           <div className='message own'>
             <div className="texts">
               <img src={image.url} alt="" />
+              <button onClick={handleCancelImage} className="cancel-button">X</button>
             </div>
           </div>
         }
@@ -150,25 +157,53 @@ const ChatArea = () => {
       </div>
 
       <div className="bottom">
-        <div className="icons">
-          <label htmlFor='img'>
-            <img src="./img.png" alt="" />
-          </label>
-          <input type="file" id='img' style={{ display: "none" }} onChange={handleImage} />
-          <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
-        </div>
+        { isBlocked() ? (
+          <p className='blocked-info'>
+            {chatUser.hasBlockedCurrentUser
+              ? "Can't send message. This user blocked you."
+              : "Can't send messaage. You have blocked this user."}
+          </p>
+        ) : (
+          <>
+            <div className="icons">
+              <label htmlFor="img">
+                <img src="./img.png" alt="Upload" />
+              </label>
+              <input 
+                type="file" 
+                id="img" 
+                style={{ display: "none" }} 
+                onChange={handleImage} 
+              />
+              <img src="./camera.png" alt="Camera" />
+              <img src="./mic.png" alt="Microphone" />
+            </div>
 
-        <input type="text" value={text} placeholder='Type a message...' onChange={e => handleMessageChange(e?.target.value)} />
+            <input 
+              type="text" 
+              value={text} 
+              placeholder="Type a message..." 
+              onChange={(e) => handleMessageChange(e?.target.value)} 
+            />
 
-        <div className="emoji">
-          <img src="./emoji.png" alt="" onClick={openEmojiPicker} />
-          <div className="picker">
-            <EmojiPicker open={open} onEmojiClick={handleEmoji}></EmojiPicker>
-          </div>
-        </div>
-        
-        <button className="sendButton" onClick={handleSend}>Send</button>
+            <div className="emoji">
+              <img 
+                src="./emoji.png" 
+                alt="Emoji" 
+                onClick={openEmojiPicker} 
+              />
+              <div className="picker">
+                <EmojiPicker open={open} onEmojiClick={handleEmoji} />
+              </div>
+            </div>
+
+            <button 
+              className="sendButton" 
+              onClick={handleSend}>
+              Send
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
