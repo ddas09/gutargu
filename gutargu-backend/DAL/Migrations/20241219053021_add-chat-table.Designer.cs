@@ -3,6 +3,7 @@ using System;
 using Gutargu.Backend.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace gutargu_backend.DAL.Migrations
 {
     [DbContext(typeof(GutarguDBContext))]
-    partial class GutarguDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241219053021_add-chat-table")]
+    partial class addchattable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,7 +142,7 @@ namespace gutargu_backend.DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int?>("LastChatId")
+                    b.Property<int>("LastChatId")
                         .HasColumnType("integer");
 
                     b.Property<string>("UpdatedBy")
@@ -193,7 +196,9 @@ namespace gutargu_backend.DAL.Migrations
 
                     b.HasOne("Gutargu.Backend.DAL.Entities.Chat", "LastChat")
                         .WithMany()
-                        .HasForeignKey("LastChatId");
+                        .HasForeignKey("LastChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Gutargu.Backend.DAL.Entities.User", "User")
                         .WithMany()

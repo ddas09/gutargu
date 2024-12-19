@@ -1,12 +1,13 @@
 import './Auth.css';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import useAuthStore from '../../stores/AuthStore';
+import useAuthStore from '../../stores/UserStore';
 import apiService from '../../services/ApiService';
+import StorageService from '../../services/StorageService';
 import { UserInformation, UserResponseModel } from '../../models/UserResponse';
 
 const Auth = () => {
-  const login = useAuthStore((state) => state.login);
+  const { setUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -34,7 +35,9 @@ const Auth = () => {
       const { data, status } = await apiService.post<UserResponseModel>('accounts/signin', formData);
 
       if (status === 'success') {
-        login(data?.userInfo as UserInformation);
+        setUser(data?.userInfo as UserInformation);
+        StorageService.setValue<UserInformation>('currentUser', data?.userInfo as UserInformation);
+        toast.success('Logged in successfully.');
       }
     } finally {
       setLoading(false);

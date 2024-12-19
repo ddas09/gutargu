@@ -1,12 +1,15 @@
 import './ChatList.css'
 import AddUser from './addUser/AddUser';
 import { useEffect, useState } from 'react';
-import useAuthStore from '../../../../stores/AuthStore';
+import useAuthStore from '../../../../stores/UserStore';
 import apiService from '../../../../services/ApiService';
+import useChatStore from '../../../../stores/ChatStore';
+import { UserInformation } from '../../../../models/UserResponse';
 import { UserContactInformation, UserContactsResponseModel } from '../../../../models/UserContactsResponse';
 
 const ChatList = () => {
 
+  const { chatUser, setChatUser } = useChatStore();
   const { currentUser } = useAuthStore();
 
   const [contacts, setContacts] = useState([] as UserContactInformation[]);
@@ -19,7 +22,7 @@ const ChatList = () => {
 
   useEffect(() => {
     getUserContacts();
-  }, [currentUser?.id]);
+  }, [currentUser?.id, chatUser?.id]);
 
   const getUserContacts = async () => {
     const queryParams = { 
@@ -33,6 +36,16 @@ const ChatList = () => {
     }
   };
 
+  const handleContactClick = (contact: UserContactInformation) => {
+    const user: UserInformation = {
+      id: contact.userId,
+      name: contact.userName,
+      profileImageUrl: contact.profileImageUrl
+    };
+
+    setChatUser(user);
+  }
+
   return (
     <div className="chatList">
         <div className="search">
@@ -45,11 +58,11 @@ const ChatList = () => {
         </div>
         {
           contacts.map((contact) => (
-            <div className="item" key={contact.userId}>
+            <div className="item" key={contact.userId} onClick={() => handleContactClick(contact)}>
               <img src={ contact.profileImageUrl || "./avatar.png"} alt="" />
               <div className="texts">
                 <span>{contact.userName}</span>
-                <p>hello</p>
+                <p></p>
               </div>
             </div>
           ))

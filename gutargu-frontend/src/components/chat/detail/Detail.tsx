@@ -1,14 +1,16 @@
-import { toast } from 'react-toastify';
-import useAuthStore from '../../../stores/AuthStore';
 import './Detail.css'
+import { toast } from 'react-toastify';
+import useAuthStore from '../../../stores/UserStore';
+import StorageService from '../../../services/StorageService';
 
 const Detail = () => {
 
-  const { logout } = useAuthStore();
+  const { clearUser } = useAuthStore();
   
   const handleLogout = () => {
+    clearUser();
+    StorageService.clearStorage();
     toast.success("Logged out successfully.");
-    logout();
   }
 
   return (
