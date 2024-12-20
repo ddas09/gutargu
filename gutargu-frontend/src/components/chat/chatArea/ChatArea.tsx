@@ -1,11 +1,12 @@
 import './ChatArea.css'
+import { toast } from 'react-toastify';
 import EmojiPicker from 'emoji-picker-react';
 import { useEffect, useRef, useState } from 'react';
 import useAuthStore from '../../../stores/UserStore';
 import useChatStore from '../../../stores/ChatStore';
 import apiService from '../../../services/ApiService';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr'; 
 import { ChatInformation, ChatResponseModel } from '../../../models/ChatResponse';
-import { toast } from 'react-toastify';
 
 const ChatArea = () => {
 
@@ -21,13 +22,48 @@ const ChatArea = () => {
   
   const endRef = useRef<HTMLDivElement>(null);
 
+  const [connection, setConnection] = useState<HubConnection | null>(null);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [endRef]);
 
   useEffect(() => {
     getChats();
-  }, [chatUser?.userId, currentUser?.id])
+    setupSignalRConnection();
+
+    return () => {
+      if (connection) {
+        connection.stop();
+      }
+    };
+  }, [chatUser?.userId, currentUser?.id]);
+
+  // This needs to be refactored in a seperate service
+  // And we must ensure that connection is closed. i.e erro handling
+  const setupSignalRConnection = () => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl(`http://localhost:5158/chatHub?userId=${currentUser?.id}`)
+      .build();
+
+    newConnection.start()
+      .then(() => {
+        console.log('SignalR connected');
+
+        newConnection.on('RecieveChat', (chat: ChatInformation) => {
+          addChatMessage(chat);
+          console.log(chat);
+        });
+        
+      })
+      .catch(err => console.log('SignalR Connection Error: ', err));
+
+    setConnection(newConnection);
+  };
+
+  const addChatMessage = (chat: ChatInformation) => {
+    setChats(prevChats => [...prevChats, chat]);
+  };
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -73,7 +109,7 @@ const ChatArea = () => {
   };
 
   const handleSend = async () => {
-    if (!text || text == "") {
+    if (!text || text === "") {
       toast.info("Please enter some message.");
       return;
     }
