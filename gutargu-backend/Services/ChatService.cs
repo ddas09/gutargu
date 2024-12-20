@@ -7,6 +7,8 @@ using Gutargu.Backend.Common.Models.Request;
 using System.Transactions;
 using Gutargu.Backend.Common.Exceptions;
 using Gutargu.Backend.Common.Constants;
+using Microsoft.AspNetCore.SignalR;
+using Gutargu.Backend.API.Hubs;
 
 namespace Gutargu.Backend.Services;
 
@@ -15,6 +17,7 @@ public class ChatService : IChatService
     private readonly IMapper _mapper;
     private readonly IImageService _imageService;
     private readonly IChatRepository _chatRepository;
+    private readonly IHubContext<ChatHub> _chatHubContext;
     private readonly IUserContactRepository _userContactRepository;
 
     public ChatService
@@ -22,12 +25,14 @@ public class ChatService : IChatService
         IMapper mapper, 
         IImageService imageService, 
         IChatRepository chatRepository,
+        IHubContext<ChatHub> hubContext,
         IUserContactRepository userContactRepository
     )
     {
         _mapper = mapper;
         _imageService = imageService;
         _chatRepository = chatRepository;
+        _chatHubContext = hubContext;
         _userContactRepository = userContactRepository;
     }
 
@@ -61,7 +66,21 @@ public class ChatService : IChatService
 
         await this._userContactRepository.UpdateRange(contactsToUpdate);
 
+        var addedChat = this._mapper.Map<ChatInformation>(newChat);
+        if (addedChat.ImageUrl != null)
+        {
+            addedChat.ImageUrl = await this._imageService.GetImageURL(addedChat.ImageUrl);
+        }
+
         scope.Complete();
+
+        // We need to find a better way to manage these connections
+        // Probably a seperate singleton service for this
+        if (ChatHub._userConnections.TryGetValue(chatRequest.ReceiverId.ToString(), out var connectioId))
+        {
+            await _chatHubContext.Clients.Client(connectioId)
+                .SendAsync("RecieveChat", addedChat);
+        }
     }
 
     public async Task<ChatResponseModel> GetChats(int senderId, int recieverId)

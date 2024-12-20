@@ -70,7 +70,9 @@ cd gutargu
       dotnet ef database update
       ```
 
-   5. Run the .NET backend:
+   5. Create **uplods/images** directory in the gutargu-backend folder. This is required to serve static files(images) for now. We will find a fix for this later.
+
+   6. Run the .NET backend:
       ```bash
       dotnet run
       ```

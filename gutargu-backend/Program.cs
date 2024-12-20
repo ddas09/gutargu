@@ -7,6 +7,7 @@ using Gutargu.Backend.DAL.Extensions;
 using Gutargu.Backend.API.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Gutargu.Backend.Services.Extensions;
+using Gutargu.Backend.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,16 +61,21 @@ builder.Services.RegisterServices();
 // For AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// For SignaR
+builder.Services.AddSignalR();
+
 // For configuring CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddPolicy("MyCORSPolicy", policy =>
     {
-        builder.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
+
 
 var app = builder.Build();
 
@@ -95,7 +101,10 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+// Map SignalR hubs
+app.MapHub<ChatHub>("/chatHub");
+
 // Enable CORS
-app.UseCors();
+app.UseCors("MyCORSPolicy");
 
 app.Run();
