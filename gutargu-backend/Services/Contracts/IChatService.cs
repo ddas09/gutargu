@@ -7,7 +7,7 @@ public interface IChatService
 {
     Task<ChatResponseModel> GetChats(int senderId, int recieverId);
 
-    Task AddChat(AddChatRequestModel chatRequest, IFormFile? chatImage);
+    Task<ChatInformation> AddChat(AddChatRequestModel chatRequest, IFormFile? chatImage);
 
     Task UpdateChatStatus(UpdateChatStatusRequestModel request);
 }

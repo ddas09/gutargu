@@ -19,6 +19,7 @@ public class ChatService : IChatService
     private readonly IChatRepository _chatRepository;
     private readonly IHubContext<ChatHub> _chatHubContext;
     private readonly IUserContactRepository _userContactRepository;
+    private readonly IHubConnectionManagerService _hubConnectionManager;
 
     public ChatService
     (
@@ -26,7 +27,8 @@ public class ChatService : IChatService
         IImageService imageService, 
         IChatRepository chatRepository,
         IHubContext<ChatHub> hubContext,
-        IUserContactRepository userContactRepository
+        IUserContactRepository userContactRepository,
+        IHubConnectionManagerService hubConnectionManager
     )
     {
         _mapper = mapper;
@@ -34,9 +36,10 @@ public class ChatService : IChatService
         _chatRepository = chatRepository;
         _chatHubContext = hubContext;
         _userContactRepository = userContactRepository;
+        _hubConnectionManager = hubConnectionManager;
     }
 
-    public async Task AddChat(AddChatRequestModel chatRequest, IFormFile? chatImage)
+    public async Task<ChatInformation> AddChat(AddChatRequestModel chatRequest, IFormFile? chatImage)
     {
         var newChat = this._mapper.Map<Chat>(chatRequest);
 
@@ -66,21 +69,27 @@ public class ChatService : IChatService
 
         await this._userContactRepository.UpdateRange(contactsToUpdate);
 
+        scope.Complete();
+
         var addedChat = this._mapper.Map<ChatInformation>(newChat);
         if (addedChat.ImageUrl != null)
         {
             addedChat.ImageUrl = await this._imageService.GetImageURL(addedChat.ImageUrl);
         }
-
-        scope.Complete();
-
-        // We need to find a better way to manage these connections
-        // Probably a seperate singleton service for this
-        if (ChatHub._userConnections.TryGetValue(chatRequest.ReceiverId.ToString(), out var connectioId))
+        
+        var connectioId = this._hubConnectionManager.GetConnectionId(chatRequest.ReceiverId.ToString());
+        if (!string.IsNullOrEmpty(connectioId))
         {
+            // Since this will be recieved by the actual reciever 
+            addedChat.IsSentByCurrentUser = false;
+
             await _chatHubContext.Clients.Client(connectioId)
                 .SendAsync("RecieveChat", addedChat);
         }
+
+        // This returned chat will be for the current user
+        addedChat.IsSentByCurrentUser = true;
+        return addedChat;
     }
 
     public async Task<ChatResponseModel> GetChats(int senderId, int recieverId)

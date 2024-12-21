@@ -1,4 +1,5 @@
 export interface ChatInformation {
+    id: number;
     senderId: number;
     message: string;
     imageUrl?: string;

@@ -38,8 +38,8 @@ public class ChatController(IChatService chatService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddChat([FromForm] AddChatRequestModel chatRequest, IFormFile? chatImage)
     {
-        await this._chatService.AddChat(chatRequest, chatImage);
-        return _customResponse.Success(data: "");
+        var newChat = await this._chatService.AddChat(chatRequest, chatImage);
+        return _customResponse.Success(data: newChat);
     }
 
     /// <summary>

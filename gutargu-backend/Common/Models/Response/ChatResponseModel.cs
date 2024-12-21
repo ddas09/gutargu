@@ -7,6 +7,8 @@ public class ChatResponseModel
 
 public class ChatInformation
 {
+    public int Id { get; set; }
+
     public int SenderId { get; set; }
 
     public required string Message { get; set; }
@@ -17,5 +19,5 @@ public class ChatInformation
 
     public bool IsSentByCurrentUser { get; set; }
 
-    public string SentAt { get; set; }
+    public DateTime SentAt { get; set; }
 }

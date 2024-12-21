@@ -11,5 +11,7 @@ public static class ServiceCollection
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IChatService, ChatService>();
+        
+        services.AddSingleton<IHubConnectionManagerService, HubConnectionManagerService>();
     }
 }

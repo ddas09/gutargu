@@ -70,9 +70,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("MyCORSPolicy", policy =>
     {
         policy.WithOrigins("http://localhost:5173")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
@@ -102,7 +102,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 // Map SignalR hubs
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/api/chatHub");
 
 // Enable CORS
 app.UseCors("MyCORSPolicy");

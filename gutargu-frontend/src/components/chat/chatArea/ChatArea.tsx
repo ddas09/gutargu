@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import useAuthStore from '../../../stores/UserStore';
 import useChatStore from '../../../stores/ChatStore';
 import apiService from '../../../services/ApiService';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr'; 
+import DateUtility from '../../../utilities/DateUtility';
+import SignalRService from '../../../services/SignalRService';
 import { ChatInformation, ChatResponseModel } from '../../../models/ChatResponse';
 
 const ChatArea = () => {
@@ -22,48 +23,26 @@ const ChatArea = () => {
   
   const endRef = useRef<HTMLDivElement>(null);
 
-  const [connection, setConnection] = useState<HubConnection | null>(null);
-
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [endRef]);
+  }, [endRef, chats]);
 
   useEffect(() => {
+    if (!currentUser || !chatUser) return;
+
     getChats();
-    setupSignalRConnection();
+
+    SignalRService.startConnection<ChatInformation>(
+      'chatHub',
+      currentUser.id.toString(),
+      'RecieveChat',
+      (chat) => setChats(prevChats => [...prevChats, chat])
+    );
 
     return () => {
-      if (connection) {
-        connection.stop();
-      }
+      SignalRService.stopConnection('chatHub', currentUser.id.toString());
     };
   }, [chatUser?.userId, currentUser?.id]);
-
-  // This needs to be refactored in a seperate service
-  // And we must ensure that connection is closed. i.e erro handling
-  const setupSignalRConnection = () => {
-    const newConnection = new HubConnectionBuilder()
-      .withUrl(`http://localhost:5158/chatHub?userId=${currentUser?.id}`)
-      .build();
-
-    newConnection.start()
-      .then(() => {
-        console.log('SignalR connected');
-
-        newConnection.on('RecieveChat', (chat: ChatInformation) => {
-          addChatMessage(chat);
-          console.log(chat);
-        });
-        
-      })
-      .catch(err => console.log('SignalR Connection Error: ', err));
-
-    setConnection(newConnection);
-  };
-
-  const addChatMessage = (chat: ChatInformation) => {
-    setChats(prevChats => [...prevChats, chat]);
-  };
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -75,8 +54,6 @@ const ChatArea = () => {
   };
 
   const getChats = async () => {
-    if (!currentUser || !chatUser) return;
-
     const queryParams = { 
       'senderId': currentUser?.id,
       'recieverId': chatUser?.userId,
@@ -126,9 +103,11 @@ const ChatArea = () => {
     }
 
     const customHeaders = { 'Content-Type': 'multipart/form-data' };
-    const { status } = await apiService.post('chats', formData, customHeaders);
+    const { data, status } = await apiService.post<ChatInformation>('chats', formData, customHeaders);
 
     if (status === 'success') {
+      setChats(prevChats => [...prevChats, data as ChatInformation]);
+      
       setImage({
         file: null,
         url: ""
@@ -175,12 +154,12 @@ const ChatArea = () => {
             </div>
           ) : (
             chats.map((chat) => (
-              <div className={`message ${chat.isSentByCurrentUser ? 'own' : ''}`} key={chat.sentAt}>
+              <div className={`message ${chat.isSentByCurrentUser ? 'own' : ''}`} key={chat.id}>
                 <img src={chat.isSentByCurrentUser ? currentUser?.profileImageUrl : chatUser?.profileImageUrl || "./avatar.png"} alt="" />
                 <div className="texts">
                   {chat.imageUrl && <img src={chat.imageUrl} alt="" />}
                   <p>{chat.message}</p>
-                  <span>{chat.sentAt}</span>
+                  <span>{DateUtility.formatDate(chat.sentAt)}</span>
                 </div>
               </div>
             ))

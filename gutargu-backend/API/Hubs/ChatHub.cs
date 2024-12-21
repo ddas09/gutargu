@@ -1,19 +1,23 @@
 using Microsoft.AspNetCore.SignalR;
+using Gutargu.Backend.Services.Contracts;
 
 namespace Gutargu.Backend.API.Hubs;
 
 public class ChatHub : Hub
 {
-    // We need to find a better way to manage these connections
-    // Probably a seperate singleton service for this
-    public static readonly Dictionary<string, string> _userConnections = [];
+    private readonly IHubConnectionManagerService _hubConnectionManager;
 
+    public ChatHub(IHubConnectionManagerService hubConnectionManager)
+    {
+        _hubConnectionManager = hubConnectionManager;
+    }
+    
     public override Task OnConnectedAsync()
     {
         var userId = Context.GetHttpContext()?.Request.Query["userId"].ToString();
         if (!string.IsNullOrEmpty(userId))
         {
-            _userConnections[userId] = Context.ConnectionId;
+            _hubConnectionManager.AddConnection(userId, Context.ConnectionId);
         }
 
         return base.OnConnectedAsync();
@@ -21,10 +25,10 @@ public class ChatHub : Hub
 
     public override Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = _userConnections.FirstOrDefault(x => x.Value == Context.ConnectionId).Key;
+        var userId = Context.GetHttpContext()?.Request.Query["userId"].ToString();
         if (userId != null)
         {
-            _userConnections.Remove(userId);
+           _hubConnectionManager.RemoveConnection(userId);
         }
 
         return base.OnDisconnectedAsync(exception);
