@@ -1,20 +1,20 @@
 using System.Reflection;
 using Gutargu.Backend.DAL;
 using Microsoft.AspNetCore.Mvc;
+using Gutargu.Backend.API.Hubs;
 using Gutargu.Backend.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using Gutargu.Backend.DAL.Extensions;
 using Gutargu.Backend.API.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Gutargu.Backend.Services.Extensions;
-using Gutargu.Backend.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Add services to the container.
+// Add controllers to the container.
 builder.Services.AddControllers();
 
 // This is to configure custom ModelState validation filter
@@ -27,7 +27,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "SecurePass API", Version = "v1" });
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Gutargu API", Version = "v1" });
 
     // To include XML comments in Swagger UI
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
