@@ -34,7 +34,7 @@ To get started with the Gutargu application, follow these steps:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/gutargu.git
+git clone https://github.com/ddas09/gutargu.git
 cd gutargu
 ```
 
